@@ -8,6 +8,8 @@ from fastapi.staticfiles import StaticFiles
 from pyppeteer import launch
 import validators
 
+
+
 base_url = os.environ.get('BASEURL') if 'BASEURL' in os.environ else 'http://localhost:8000'
 app = FastAPI(title='Screenshot API')
 app.mount("/screenshots", StaticFiles(directory="screenshots"), name="screenshot")
@@ -37,5 +39,13 @@ async def screenshoot_api(url: str, width: int = 1920, height: int = 1080):
     await page.goto(url)
     await page.screenshot({'path': image_path})
     await browser.close()
-    return {"image": f"{base_url if base_url else ''}/{image_path}"}
+    return  {
+                "image": f"{base_url if base_url else ''}/{image_path}",
+                "url": url,
+                "resolution": {
+                    "width": width,
+                    "height": height,
+                },
+                "message": "this api deployed to serverless service, image only last for few minutes, before deleted"
+            }
 
