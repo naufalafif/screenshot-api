@@ -1,3 +1,4 @@
+from unicodedata import name
 import uuid
 import os
 
@@ -7,11 +8,19 @@ from fastapi.staticfiles import StaticFiles
 from pyppeteer import launch
 import validators
 
-base_url = os.environ.get('BASEURL')
-app = FastAPI()
+base_url = os.environ.get('BASEURL') if 'BASEURL' in os.environ else 'http://localhost:8000'
+app = FastAPI(title='Screenshot API')
 app.mount("/screenshots", StaticFiles(directory="screenshots"), name="screenshot")
 
-@app.get("/")
+@app.get('/')
+async def index():
+    return {
+        'name': 'Screenshot API',
+        'status': 'running',
+        'docs': f'{base_url}/docs'
+    }
+
+@app.get("/ss")
 async def screenshoot_api(url: str, width: int = 1920, height: int = 1080):
     if not validators.url(url):
         raise HTTPException(detail='invalid url', status_code=400)
